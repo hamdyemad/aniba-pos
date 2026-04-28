@@ -41,7 +41,7 @@ export function POSPage() {
   const [showSessionClose, setShowSessionClose] = useState(false);
   const [showBalancesHistory, setShowBalancesHistory] = useState(false);
   const [showCurrentSession, setShowCurrentSession] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(true);
+  const [isCartOpen, setIsCartOpen] = useState(window.innerWidth >= 768);
   const [monthlyTotal] = useState(0);
 
   // Load monthly total from orders
@@ -70,7 +70,7 @@ export function POSPage() {
   useBarcodeScanner(handleBarcodeScan);
 
   return (
-    <div className={`h-screen flex flex-col overflow-hidden ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-900 th-bg-page'}`}>
+    <div className={`h-[100dvh] flex flex-col overflow-hidden ${isDark ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-900 th-bg-page'}`}>
       <Header
         onOpenHistory={() => setShowHistory(true)}
         onOpenSessionClose={() => setShowSessionClose(true)}
@@ -86,19 +86,19 @@ export function POSPage() {
 
         {/* Cart Sidebar */}
         <aside
-          className={`fixed inset-y-0 ${isRTL ? 'left-0' : 'right-0'} z-40 lg:relative lg:inset-auto w-full sm:w-[380px] ${isDark ? 'bg-slate-900/95 lg:bg-slate-900/60' : 'bg-white/95 lg:bg-white/80'} backdrop-blur-3xl lg:backdrop-blur-xl ${isRTL ? 'border-r' : 'border-l'} ${isDark ? 'border-slate-700/50' : 'border-slate-200'} flex flex-col shrink-0 transition-transform duration-300 ease-in-out th-bg-sidebar ${
-            isCartOpen ? 'translate-x-0' : (isRTL ? '-translate-x-full lg:translate-x-0 lg:w-[60px]' : 'translate-x-full lg:translate-x-0 lg:w-[60px]')
+          className={`fixed top-16 bottom-0 ${isRTL ? 'left-0' : 'right-0'} z-40 md:relative md:inset-auto w-full sm:w-[380px] ${isDark ? 'bg-slate-900/95 md:bg-slate-900/60' : 'bg-white/95 md:bg-white/80'} backdrop-blur-3xl md:backdrop-blur-xl ${isRTL ? 'border-r' : 'border-l'} ${isDark ? 'border-slate-700/50' : 'border-slate-200'} flex flex-col shrink-0 transition-transform duration-300 ease-in-out th-bg-sidebar ${
+            isCartOpen ? 'translate-x-0' : (isRTL ? '-translate-x-full md:translate-x-0 md:w-[60px]' : 'translate-x-full md:translate-x-0 md:w-[60px]')
           }`}
         >
           {/* Toggle */}
           <button
             onClick={() => setIsCartOpen(!isCartOpen)}
-            className={`absolute ${isRTL ? '-right-4' : '-left-4'} top-1/2 -translate-y-1/2 w-8 h-16 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200 shadow-md'} border ${isRTL ? 'rounded-r-xl' : 'rounded-l-xl'} hidden lg:flex items-center justify-center ${isDark ? 'text-slate-400' : 'text-slate-500'} hover:text-indigo-400 transition-colors cursor-pointer`}
+            className={`absolute ${isRTL ? '-right-4' : '-left-4'} top-1/2 -translate-y-1/2 w-8 h-16 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200 shadow-md'} border ${isRTL ? 'rounded-r-xl' : 'rounded-l-xl'} hidden md:flex items-center justify-center ${isDark ? 'text-slate-400' : 'text-slate-500'} hover:text-indigo-400 transition-colors cursor-pointer`}
           >
             {isCartOpen ? (isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />) : (isRTL ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />)}
           </button>
 
-          <div className={`flex flex-col h-full ${!isCartOpen && 'lg:hidden'}`}>
+          <div className={`flex flex-col h-full ${!isCartOpen && 'md:hidden'}`}>
             {/* Cart Header */}
             <div className={`p-4 border-b ${isDark ? 'border-slate-700/50' : 'border-slate-200'}`}>
               <div className="flex items-center justify-between">
@@ -118,7 +118,7 @@ export function POSPage() {
                     </Button>
                   )}
                   <Button variant="ghost" size="sm" onClick={() => setIsCartOpen(false)}
-                    className="lg:hidden h-8 w-8 p-0">
+                    className="md:hidden h-8 w-8 p-0">
                     {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                   </Button>
                 </div>
@@ -210,7 +210,7 @@ export function POSPage() {
 
           {/* Mini sidebar */}
           {!isCartOpen && (
-            <div className="hidden lg:flex flex-col items-center pt-6 gap-6">
+            <div className="hidden md:flex flex-col items-center pt-6 gap-6">
               <div className="relative">
                 <ShoppingCart className="w-6 h-6 text-indigo-400" />
                 {cartItemCount > 0 && (
@@ -233,7 +233,7 @@ export function POSPage() {
         {/* Floating Cart Button - Mobile */}
         {!isCartOpen && (
           <button onClick={() => setIsCartOpen(true)}
-            className={`lg:hidden fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} w-16 h-16 bg-indigo-600 rounded-full shadow-2xl shadow-indigo-500/40 flex items-center justify-center z-50 cursor-pointer`}>
+            className={`md:hidden fixed bottom-6 ${isRTL ? 'left-6' : 'right-6'} w-16 h-16 bg-indigo-600 rounded-full shadow-2xl shadow-indigo-500/40 flex items-center justify-center z-50 cursor-pointer`}>
             <div className="relative">
               <ShoppingCart className="w-8 h-8 text-white" />
               {cartItemCount > 0 && (

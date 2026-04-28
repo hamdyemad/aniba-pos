@@ -409,6 +409,8 @@ export function POSProvider({ children }: { children: ReactNode }) {
           cashierName: (data.cashier?.name && data.cashier.name !== 'Unknown') ? data.cashier.name : (state.currentUser?.name || 'كاشير'),
           openingTime: data.opened_at,
           openingBalance: parseFloat(data.opening_balance),
+          totalSales: parseFloat(data.total_sales || 0),
+          totalRefunds: parseFloat(data.total_refunds || 0),
           status: 'open',
         };
         dispatch({ type: 'SET_SESSION', session });
@@ -446,6 +448,8 @@ export function POSProvider({ children }: { children: ReactNode }) {
               cashierName: (data.cashier?.name && data.cashier.name !== 'Unknown') ? data.cashier.name : user.name,
               openingTime: data.opened_at,
               openingBalance: parseFloat(data.opening_balance),
+              totalSales: parseFloat(data.total_sales || 0),
+              totalRefunds: parseFloat(data.total_refunds || 0),
               status: 'open',
             };
             dispatch({ type: 'SET_SESSION', session });

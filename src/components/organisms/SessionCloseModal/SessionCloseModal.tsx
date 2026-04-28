@@ -76,23 +76,23 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] animate-fadeIn p-6" onMouseDown={onClose}>
-      <div className={`border rounded-[2.5rem] w-full max-w-xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl relative ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`} onMouseDown={(e) => e.stopPropagation()}>
-        <div className={`flex items-center justify-between p-8 border-b ${isDark ? 'border-slate-800/50 bg-slate-900/50' : 'border-slate-100 bg-slate-50'}`}>
-          <h2 className={`text-2xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            <div className="p-3 bg-red-500/20 rounded-2xl">
-              <Lock className="w-6 h-6 text-red-500" />
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] animate-fadeIn p-2 sm:p-6" onMouseDown={onClose}>
+      <div className={`border rounded-[2.5rem] w-full max-w-xl max-h-[95vh] overflow-y-auto custom-scrollbar shadow-2xl relative animate-scaleIn ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`} onMouseDown={(e) => e.stopPropagation()}>
+        <div className={`flex items-center justify-between p-6 sm:p-8 border-b ${isDark ? 'border-slate-800/50 bg-slate-900/50' : 'border-slate-100 bg-slate-50'}`}>
+          <h2 className={`text-xl sm:text-2xl font-bold flex items-center gap-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <div className="p-2.5 sm:p-3 bg-red-500/20 rounded-2xl">
+              <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
             </div>
             {t('session.closeModal.title')}
           </h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className={`rounded-2xl h-12 w-12 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
-            <X className={`w-6 h-6 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
+          <Button variant="ghost" size="icon" onClick={onClose} className={`rounded-2xl h-10 w-10 sm:h-12 sm:w-12 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
+            <X className={`w-5 h-5 sm:w-6 sm:h-6 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
           </Button>
         </div>
 
         {!isConfirming ? (
-          <div className="p-8 space-y-8">
-            <div className={`rounded-[2rem] p-6 space-y-4 border ${isDark ? 'bg-slate-950/50 border-slate-800/50' : 'bg-slate-50 border-slate-200'}`}>
+          <div className="p-6 sm:p-8 space-y-6 sm:space-y-8">
+            <div className={`rounded-[2rem] p-4 sm:p-6 space-y-3 sm:space-y-4 border ${isDark ? 'bg-slate-950/50 border-slate-800/50' : 'bg-slate-50 border-slate-200'}`}>
               <div className={`flex justify-between items-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 <span className="text-lg">{t('orders.cashier')}</span>
                 <span className={`font-medium text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{state.currentSession?.cashierName}</span>
@@ -139,8 +139,8 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
             </div>
           </div>
         ) : (
-          <div className="p-8 space-y-8 text-center animate-slideDown">
-            <h3 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('session.closeModal.summary')}</h3>
+          <div className="p-6 sm:p-8 space-y-6 sm:space-y-8 text-center animate-slideDown">
+            <h3 className={`text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t('session.closeModal.summary')}</h3>
             
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-950/30 border-slate-800/50' : 'bg-slate-50 border-slate-200'}`}>

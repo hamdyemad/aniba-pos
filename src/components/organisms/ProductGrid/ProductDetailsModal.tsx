@@ -177,13 +177,13 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
       {/* Modal Content */}
       <div 
         dir={isRTL ? 'rtl' : 'ltr'}
-        className="relative w-full max-w-6xl bg-[var(--bg-secondary)] rounded-[3rem] overflow-hidden shadow-2xl animate-scaleUp flex flex-col md:flex-row max-h-[95vh] sm:max-h-[90vh] th-bg-page"
+        className="relative w-full max-w-6xl bg-[var(--bg-secondary)] rounded-2xl sm:rounded-[3rem] overflow-hidden shadow-2xl animate-scaleIn flex flex-col md:flex-row max-h-[95vh] sm:max-h-[90vh] th-bg-page"
       >
         <button 
           onClick={onClose}
-          className={`absolute top-8 ${isRTL ? 'left-8' : 'right-8'} p-2 rounded-full bg-[var(--bg-overlay)] hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all z-50 th-bg-btn th-text-muted`}
+          className={`absolute top-4 sm:top-8 ${isRTL ? 'left-4 sm:left-8' : 'right-4 sm:right-8'} p-2 rounded-full bg-[var(--bg-overlay)]/80 backdrop-blur-md hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all z-50 th-bg-btn th-text-muted`}
         >
-          <X className="w-6 h-6" />
+          <X className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         {loading ? (
@@ -197,9 +197,9 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
         ) : (
           <>
             {/* Left Side: Image (alone at the top/left) */}
-            <div className="w-full md:w-[45%] p-8 sm:p-12 flex flex-col gap-8 bg-[var(--bg-overlay)] th-bg-overlay items-center justify-center">
+            <div className="w-full md:w-[45%] p-6 sm:p-12 flex flex-col gap-6 sm:gap-8 bg-[var(--bg-overlay)] th-bg-overlay items-center justify-center">
               <div 
-                className="relative aspect-square w-full max-w-[450px] rounded-[3rem] overflow-hidden bg-[var(--bg-card)] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-center justify-center group cursor-zoom-in"
+                className="relative aspect-square w-full max-w-[450px] rounded-2xl sm:rounded-[3rem] overflow-hidden bg-[var(--bg-card)] shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-center justify-center group cursor-zoom-in"
                 onMouseMove={handleMouseMove}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => setIsHovering(false)}
@@ -241,8 +241,8 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
             </div>
 
             {/* Content Side */}
-            <div className="w-full md:w-[55%] p-8 sm:p-14 overflow-y-auto custom-scrollbar flex flex-col">
-              <h1 className="text-4xl sm:text-5xl font-black text-[var(--text-primary)] mb-6 leading-[1.1] th-text">
+            <div className="w-full md:w-[55%] p-6 sm:p-14 overflow-y-auto custom-scrollbar flex flex-col">
+              <h1 className="text-2xl sm:text-5xl font-black text-[var(--text-primary)] mb-4 sm:mb-6 leading-[1.1] th-text">
                 {vendorProduct?.name}
               </h1>
               
@@ -261,7 +261,7 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
               </div>
 
               {/* Price & Info Card (Badges moved inside) */}
-              <div className="bg-[var(--bg-card)] rounded-[2.5rem] p-8 mb-10 border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative th-bg-card th-border">
+              <div className="bg-[var(--bg-card)] rounded-2xl sm:rounded-[2.5rem] p-5 sm:p-8 mb-8 sm:mb-10 border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.03)] relative th-bg-card th-border">
                 {/* Badges moved inside the card at top */}
                 <div className="flex flex-wrap gap-2 mb-8 border-b border-[var(--border-light)] pb-6 th-border">
                   <div className="px-3 py-1.5 bg-[var(--bg-overlay)] rounded-full flex items-center gap-2 th-bg-overlay">
@@ -373,7 +373,7 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
               )}
 
               {/* Authentic Box */}
-              <div className="flex items-center gap-6 p-6 bg-[var(--bg-overlay)] rounded-[2rem] border border-[var(--border-color)] mb-12 th-bg-overlay th-border">
+              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-[var(--bg-overlay)] rounded-2xl sm:rounded-[2rem] border border-[var(--border-color)] mb-8 sm:mb-12 th-bg-overlay th-border">
                 <div className="w-16 h-16 rounded-2xl bg-[var(--bg-card)] p-3 flex items-center justify-center shadow-sm">
                   <img src={productData.vendors[0].vendor.logo} alt="" className="w-full h-full object-contain" />
                 </div>
@@ -388,25 +388,25 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
               </div>
 
               {/* Footer */}
-              <div className="mt-auto flex items-center gap-4 pt-8 border-t border-[var(--border-color)] th-border">
-                <div className="flex items-center bg-[var(--bg-overlay)] rounded-2xl p-1 th-bg-overlay">
+              <div className="mt-auto flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-[var(--border-color)] th-border">
+                <div className="flex items-center bg-[var(--bg-overlay)] rounded-xl sm:rounded-2xl p-0.5 sm:p-1 th-bg-overlay">
                   <button 
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="w-12 h-12 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all th-text-muted"
+                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all th-text-muted"
                   >
-                    <Minus className="w-5 h-5" />
+                    <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <span className="w-12 text-center text-xl font-black text-[var(--text-primary)] th-text">{quantity}</span>
+                  <span className="w-10 text-center text-lg sm:text-xl font-black text-[var(--text-primary)] th-text">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(q => q + 1)}
-                    className="w-12 h-12 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all th-text-muted"
+                    className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all th-text-muted"
                   >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-
+ 
                 <Button
-                  className="flex-1 h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black shadow-xl shadow-indigo-500/10 transition-all flex items-center justify-center gap-3 disabled:grayscale disabled:opacity-50"
+                  className="flex-1 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black shadow-xl shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 sm:gap-3 disabled:grayscale disabled:opacity-50"
                   disabled={configTree.length > 0 && !currentVariant}
                   onClick={() => {
                     if (!vendorProduct) return;
@@ -424,11 +424,11 @@ export function ProductDetailsModal({ slug, isOpen, onClose, onAddToCart }: Prod
                     onAddToCart(productToCart, currentVariant || undefined, quantity);
                   }}
                 >
-                  <ShoppingCart className="w-6 h-6" />
-                  <span className="text-lg">{t('pos.pay')} {t('pos.cart')}</span>
+                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="text-base sm:text-lg">{t('pos.pay')} {t('pos.cart')}</span>
                 </Button>
-
-                <button className="w-14 h-14 rounded-2xl border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-rose-500 hover:border-rose-100 transition-all th-border">
+ 
+                <button className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-rose-500 hover:border-rose-100 transition-all th-border">
                   <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                   </svg>

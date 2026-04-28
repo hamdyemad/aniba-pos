@@ -45,10 +45,19 @@ function ProductCard({
   };
 
   return (
-    <button
-      onClick={() => onAddToCart(product)}
-      disabled={product.stock <= 0}
-      className={`group relative flex flex-col bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:grayscale hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] active:scale-[0.98] th-product-card`}
+    <div
+      onClick={() => product.stock > 0 && onAddToCart(product)}
+      className={`group relative flex flex-col bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] rounded-[2rem] overflow-hidden transition-all duration-300 cursor-pointer ${
+        product.stock <= 0 ? 'opacity-40 grayscale pointer-events-none' : 'hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] active:scale-[0.98]'
+      } th-product-card`}
+      role="button"
+      tabIndex={product.stock > 0 ? 0 : -1}
+      onKeyDown={(e) => {
+        if (product.stock > 0 && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onAddToCart(product);
+        }
+      }}
     >
       {/* Product Image Carousel */}
       <div className="relative aspect-square w-full overflow-hidden bg-[var(--bg-overlay)] flex items-center justify-center">
@@ -197,7 +206,7 @@ function ProductCard({
           </span>
         </div>
       )}
-    </button>
+    </div>
   );
 }
 
@@ -521,7 +530,7 @@ export function ProductGrid() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
               {filteredProducts.map((product) => (
                 <ProductCard 
                   key={product.id} 

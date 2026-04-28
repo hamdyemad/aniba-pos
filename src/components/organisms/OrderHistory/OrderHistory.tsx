@@ -100,27 +100,27 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
     .reduce((sum, o) => sum + o.grandTotal, 0);
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn p-4" onMouseDown={onClose}>
-      <div className={`border rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn p-2 sm:p-4" onMouseDown={onClose}>
+      <div className={`border rounded-3xl w-full max-w-4xl max-h-[95vh] flex flex-col shadow-2xl animate-scaleIn ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`} onMouseDown={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-          <div>
-            <h2 className={`text-xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              <Clock className="w-6 h-6 text-indigo-400" />
-              {t('orders.title')}
+        <div className={`flex items-center justify-between p-4 sm:p-6 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+          <div className="min-w-0">
+            <h2 className={`text-lg sm:text-xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
+              <span className="truncate">{t('orders.title')}</span>
             </h2>
-            <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[10px] sm:text-sm mt-0.5 sm:mt-1 truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               {t('orders.todayTotal')} <span className="text-emerald-400 font-bold">{formatPrice(todayTotal)}</span>
               {' • '}{orders.length} {t('orders.ordersCount')}
             </p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl">
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl h-10 w-10 flex-shrink-0">
             <X className="w-5 h-5" />
           </Button>
         </div>
 
         {/* Filters */}
-        <div className="p-4 pb-2 flex flex-col sm:flex-row gap-3">
+        <div className="p-3 sm:p-4 pb-2 flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="relative flex-1">
             <Search className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500`} />
             <input
@@ -128,13 +128,13 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('orders.searchPlaceholder')}
-              className={`w-full h-10 border rounded-xl ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${isDark ? 'bg-slate-900/50 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
+              className={`w-full h-9 sm:h-10 border rounded-xl ${isRTL ? 'pr-10 pl-4' : 'pl-10 pr-4'} text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${isDark ? 'bg-slate-900/50 border-slate-700 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'}`}
             />
           </div>
           <div className={`flex rounded-xl border overflow-hidden shrink-0 ${isDark ? 'bg-slate-900/50 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
             <button
               onClick={() => setFilter('today')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                 filter === 'today' ? 'bg-indigo-600 text-white' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
               }`}
             >
@@ -142,7 +142,7 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
             </button>
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                 filter === 'all' ? 'bg-indigo-600 text-white' : (isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
               }`}
             >

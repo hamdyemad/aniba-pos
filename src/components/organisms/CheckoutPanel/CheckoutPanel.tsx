@@ -107,8 +107,8 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
 
   if (isCompleted) {
     return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onMouseDown={onClose}>
-        <div className={`border rounded-3xl p-8 max-w-md w-full mx-4 text-center bg-[var(--bg-secondary)] border-[var(--border-color)]`} onMouseDown={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn p-2 sm:p-6" onMouseDown={onClose}>
+        <div className={`border rounded-3xl p-6 sm:p-8 max-w-md w-full mx-4 text-center bg-[var(--bg-secondary)] border-[var(--border-color)] animate-scaleIn`} onMouseDown={(e) => e.stopPropagation()}>
           <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mx-auto mb-6 animate-bounceIn">
             <Check className="w-10 h-10 text-emerald-400" />
           </div>
@@ -157,20 +157,20 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn p-4" onMouseDown={onClose}>
-      <div className={`border rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl bg-[var(--bg-secondary)] border-[var(--border-color)]`} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn p-2 sm:p-4" onMouseDown={onClose}>
+      <div className={`border rounded-3xl w-full max-w-3xl max-h-[95vh] overflow-y-auto custom-scrollbar shadow-2xl bg-[var(--bg-secondary)] border-[var(--border-color)] animate-scaleIn`} onMouseDown={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className={`flex items-center justify-between p-6 border-b border-[var(--border-light)]`}>
-          <h2 className={`text-xl font-bold flex items-center gap-2 text-[var(--text-primary)]`}>
-            <Calculator className="w-6 h-6 text-indigo-400" />
+        <div className={`flex items-center justify-between p-4 sm:p-6 border-b border-[var(--border-light)]`}>
+          <h2 className={`text-lg sm:text-xl font-bold flex items-center gap-2 text-[var(--text-primary)]`}>
+            <Calculator className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
             {t('checkout.title')}
           </h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl">
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-xl h-10 w-10">
             <X className="w-5 h-5" />
           </Button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Order Summary */}
           <div className={`rounded-2xl p-4 space-y-2 bg-[var(--bg-overlay)] border border-[var(--border-color)]`}>
             <div className={`flex justify-between text-[var(--text-secondary)]`}>
@@ -235,33 +235,33 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
           {/* Payment Methods */}
           <div>
             <p className={`text-sm mb-3 font-medium text-[var(--text-secondary)]`}>{t('checkout.paymentMethod')}</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <Button
                 variant={selectedMethod === 'cash' ? 'cash' : 'ghost'}
                 size="lg"
                 onClick={() => setSelectedMethod('cash')}
-                className="flex-col gap-1 h-20"
+                className="flex-col gap-1 h-16 sm:h-20 p-1 sm:p-4"
               >
-                <Banknote className="w-7 h-7" />
-                <span className="text-sm">{t('checkout.cash')}</span>
+                <Banknote className="w-5 h-5 sm:w-7 sm:h-7" />
+                <span className="text-[10px] sm:text-sm">{t('checkout.cash')}</span>
               </Button>
               <Button
                 variant={selectedMethod === 'card' ? 'card' : 'ghost'}
                 size="lg"
                 onClick={() => setSelectedMethod('card')}
-                className="flex-col gap-1 h-20"
+                className="flex-col gap-1 h-16 sm:h-20 p-1 sm:p-4"
               >
-                <CreditCard className="w-7 h-7" />
-                <span className="text-sm">{t('checkout.card')}</span>
+                <CreditCard className="w-5 h-5 sm:w-7 sm:h-7" />
+                <span className="text-[10px] sm:text-sm">{t('checkout.card')}</span>
               </Button>
               <Button
                 variant={selectedMethod === 'wallet' ? 'wallet' : 'ghost'}
                 size="lg"
                 onClick={() => setSelectedMethod('wallet')}
-                className="flex-col gap-1 h-20"
+                className="flex-col gap-1 h-16 sm:h-20 p-1 sm:p-4"
               >
-                <Wallet className="w-7 h-7" />
-                <span className="text-sm">{t('checkout.wallet')}</span>
+                <Wallet className="w-5 h-5 sm:w-7 sm:h-7" />
+                <span className="text-[10px] sm:text-sm">{t('checkout.wallet')}</span>
               </Button>
             </div>
           </div>
@@ -297,15 +297,15 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
               <p className={`text-sm mb-3 font-medium text-[var(--text-secondary)]`}>{t('checkout.amountPaid')}</p>
               
               {/* Cash Display */}
-              <div dir="ltr" className={`border rounded-2xl p-4 mb-3 text-center bg-[var(--bg-overlay)] border-[var(--border-color)]`}>
-                <p className={`text-3xl font-bold font-mono text-[var(--text-primary)]`}>
-                  <span className={`text-lg mr-2 text-[var(--text-muted)]`}>
+              <div dir="ltr" className={`border rounded-2xl p-3 sm:p-4 mb-3 text-center bg-[var(--bg-overlay)] border-[var(--border-color)]`}>
+                <p className={`text-2xl sm:text-3xl font-bold font-mono text-[var(--text-primary)]`}>
+                  <span className={`text-base sm:text-lg mr-2 text-[var(--text-muted)]`}>
                     {selectedCountry?.currency.display || 'ج.م'}
                   </span>
                   {cashReceived || '0'}
                 </p>
                 {cashAmount >= state.grandTotal && (
-                  <p className="text-emerald-400 text-lg mt-1 font-medium">
+                  <p className="text-emerald-400 text-base sm:text-lg mt-1 font-medium">
                     {t('checkout.change')} {formatPrice(change)}
                   </p>
                 )}
@@ -333,7 +333,7 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
                     key={key}
                     variant="ghost"
                     size="lg"
-                    className="text-xl font-mono"
+                    className="text-lg sm:text-xl font-mono h-12 sm:h-16"
                     onClick={() => handleNumpadClick(key)}
                   >
                     {key}
@@ -344,11 +344,11 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               variant="ghost"
               size="lg"
-              className="flex-none px-6"
+              className="flex-none px-6 h-12 sm:h-14"
               onClick={() => {
                 clearCart();
                 onClose();
@@ -359,13 +359,13 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
             <Button
               variant="success"
               size="lg"
-              className="flex-1"
+              className="flex-1 h-12 sm:h-14 font-bold"
               onClick={handleCheckout}
               disabled={state.isProcessing || !canPay || state.cart.length === 0}
               isLoading={state.isProcessing}
             >
               <Receipt className="w-5 h-5" />
-              {t('checkout.confirmPay')} — {formatPrice(state.grandTotal)}
+              <span className="truncate">{t('checkout.confirmPay')} — {formatPrice(state.grandTotal)}</span>
             </Button>
           </div>
         </div>

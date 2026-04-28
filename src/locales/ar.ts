@@ -117,6 +117,15 @@ export const ar = {
     closeSession: 'إغلاق الوردية',
     syncSuccess: 'تمت المزامنة: {{success}} نجاح و {{failed}} فشل',
     syncError: 'فشل في المزامنة',
+    status: 'الحالة',
+    time: 'الوقت',
+    settings: 'الإعدادات',
+    lightMode: 'الوضع الفاتح',
+    darkMode: 'الوضع الليلي',
+    country: 'الدولة',
+    history: 'السجل',
+    syncCount: 'مزامنة ({{count}})',
+    selectCountry: 'اختر الدولة',
   },
   orders: {
     title: 'سجل الطلبات',
@@ -160,6 +169,9 @@ export const ar = {
     openingBalance: 'الرصيد الافتتاحي',
     statusLabel: 'حالة الوردية',
     statusValue: 'مفتوحة حالياً',
+    totalSales: 'إجمالي المبيعات',
+    totalRefunds: 'إجمالي المرتجعات',
+    netTotal: 'صافي المبيعات',
     closeWindow: 'إغلاق النافذة',
   }
 };

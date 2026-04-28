@@ -117,6 +117,15 @@ export const en = {
     closeSession: 'Close Session',
     syncSuccess: 'Sync successful: {{success}} success, {{failed}} failed',
     syncError: 'Sync failed',
+    status: 'Status',
+    time: 'Time',
+    settings: 'Settings',
+    lightMode: 'Light Mode',
+    darkMode: 'Dark Mode',
+    country: 'Country',
+    history: 'History',
+    syncCount: 'Sync ({{count}})',
+    selectCountry: 'Select Country',
   },
   orders: {
     title: 'Order History',
@@ -160,6 +169,9 @@ export const en = {
     openingBalance: 'Opening Balance',
     statusLabel: 'Shift Status',
     statusValue: 'Currently Open',
+    totalSales: 'Total Sales',
+    totalRefunds: 'Total Refunds',
+    netTotal: 'Net Total',
     closeWindow: 'Close Window',
   }
 };
