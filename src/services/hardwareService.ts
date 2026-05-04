@@ -48,21 +48,26 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
     .map(
       (item) => `
       <tr>
-        <td style="text-align:left;font-size:11px;padding:2px 0;">
+        <td style="text-align:right;font-size:11px;padding:4px 0;vertical-align:top;">
           <div style="font-weight:bold;">${item.product.name}</div>
           ${item.product.sku ? `
           <div style="font-size:9px;color:#666;margin-top:2px;" dir="ltr">
             SKU: ${item.product.sku}
           </div>
           ` : ''}
-          ${(item.product as any).selections && (item.product as any).selections.length > 0 ? `
+          ${item.product.variantTree ? `
           <div style="font-size:9px;color:#666;margin-top:2px;">
-            ${(item.product as any).selections.join(' - ')}
+            ${item.product.variantTree}
+          </div>
+          ` : ''}
+          ${item.product.selections && item.product.selections.length > 0 ? `
+          <div style="font-size:9px;color:#666;margin-top:2px;">
+            ${item.product.selections.join(' - ')}
           </div>
           ` : ''}
         </td>
-        <td style="text-align:center;font-size:11px;">${item.quantity}</td>
-        <td style="text-align:right;font-size:11px;">${formatCurrency(item.lineTotal)}</td>
+        <td style="text-align:center;font-size:11px;vertical-align:top;padding:4px 0;">${item.quantity}</td>
+        <td style="text-align:left;font-size:11px;vertical-align:top;padding:4px 0;">${formatCurrency(item.lineTotal)}</td>
       </tr>`
     )
     .join('');
@@ -70,7 +75,7 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
   const paymentRows = order.payments
     .map(
       (p) => `
-      <div style="display:flex;justify-content:space-between;font-size:11px;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;">
         <span>${p.method === 'cash' ? 'نقدي' : p.method === 'card' ? 'بطاقة' : 'محفظة'}</span>
         <span>${formatCurrency(p.amount)}</span>
       </div>`
@@ -85,18 +90,18 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
     <html dir="rtl">
     <head>
       <meta charset="utf-8">
-      <title>Receipt</title>
+      <title>Receipt ${order.orderNumber}</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; width: 280px; padding: 10px; direction: rtl; }
+        body { font-family: 'Arial', sans-serif; width: 280px; padding: 10px; direction: rtl; }
         .center { text-align: center; }
-        .divider { border-top: 1px dashed #000; margin: 6px 0; }
+        .divider { border-top: 1px dashed #000; margin: 8px 0; }
         .bold { font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; }
-        .logo { max-width: 100px; max-height: 60px; margin-bottom: 8px; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .logo { max-width: 120px; max-height: 80px; margin-bottom: 8px; }
         @media print {
           @page { size: 80mm auto; margin: 0; }
-          body { width: 80mm; }
+          body { width: 80mm; padding: 5mm; }
         }
       </style>
     </head>
@@ -104,23 +109,46 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
       <div class="center">
         <img src="${logoUrl}" alt="${storeName}" class="logo" />
       </div>
-      <div class="center bold" style="font-size:14px;margin-bottom:4px;">${storeName}</div>
-      <div class="center" style="font-size:10px;margin-bottom:4px;">${storeAddress}</div>
+      <div class="center bold" style="font-size:16px;margin-bottom:4px;">${storeName}</div>
+      <div class="center" style="font-size:11px;margin-bottom:4px;">${storeAddress}</div>
       <div class="divider"></div>
       
-      <div style="font-size:11px;margin-bottom:4px;">
-        <div>رقم الفاتورة: ${order.orderNumber}</div>
-        <div>التاريخ: ${formatDate(order.createdAt)}</div>
-        <div>الكاشير: ${order.cashierName}</div>
+      <div style="font-size:11px;margin-bottom:4px;line-height:1.4;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>رقم الفاتورة:</span>
+          <span class="bold">${order.orderNumber}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>التاريخ:</span>
+          <span>${formatDate(order.createdAt)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>الكاشير:</span>
+          <span>${order.cashierName}</span>
+        </div>
+        
+        ${order.customerName ? `
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>العميل:</span>
+          <span class="bold">${order.customerName}</span>
+        </div>
+        ${order.customerPhone ? `
+        <div style="display:flex;justify-content:space-between;">
+          <span>الهاتف:</span>
+          <span dir="ltr">${order.customerPhone}</span>
+        </div>
+        ` : ''}
+        ` : ''}
       </div>
       <div class="divider"></div>
 
       <table>
         <thead>
           <tr style="font-size:11px;border-bottom:1px solid #000;">
-            <th style="text-align:left;">الصنف</th>
-            <th style="text-align:center;">الكمية</th>
-            <th style="text-align:right;">المبلغ</th>
+            <th style="text-align:right;padding-bottom:4px;">الصنف</th>
+            <th style="text-align:center;padding-bottom:4px;">الكمية</th>
+            <th style="text-align:left;padding-bottom:4px;">المبلغ</th>
           </tr>
         </thead>
         <tbody>
@@ -129,13 +157,13 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
       </table>
       <div class="divider"></div>
 
-      <div style="font-size:12px;">
+      <div style="font-size:12px;line-height:1.6;">
         <div style="display:flex;justify-content:space-between;">
           <span>المجموع الفرعي:</span>
           <span>${formatCurrency(order.subtotal)}</span>
         </div>
         ${order.discountTotal > 0 ? `
-        <div style="display:flex;justify-content:space-between;color:green;">
+        <div style="display:flex;justify-content:space-between;color:#000;">
           <span>الخصم:</span>
           <span>-${formatCurrency(order.discountTotal)}</span>
         </div>` : ''}
@@ -144,8 +172,7 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
           <span>الضريبة:</span>
           <span>${formatCurrency(order.taxTotal)}</span>
         </div>` : ''}
-        <div class="divider"></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;" class="bold">
+        <div style="display:flex;justify-content:space-between;font-size:16px;margin-top:4px;" class="bold">
           <span>الإجمالي:</span>
           <span>${formatCurrency(order.grandTotal)}</span>
         </div>
@@ -153,25 +180,13 @@ function generateReceiptHTML(order: Order, storeName: string, storeAddress: stri
       <div class="divider"></div>
 
       <div style="margin-bottom:4px;">
-        <div class="bold" style="font-size:11px;margin-bottom:2px;">طريقة الدفع:</div>
+        <div class="bold" style="font-size:12px;margin-bottom:4px;">تفاصيل الدفع:</div>
         ${paymentRows}
       </div>
 
-      ${order.cashReceived ? `
-      <div style="font-size:11px;">
-        <div style="display:flex;justify-content:space-between;">
-          <span>المبلغ المدفوع:</span>
-          <span>${formatCurrency(order.cashReceived)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;">
-          <span>الباقي:</span>
-          <span>${formatCurrency(order.changeGiven || 0)}</span>
-        </div>
-      </div>` : ''}
-
       <div class="divider"></div>
-      <div class="center" style="font-size:10px;margin-top:6px;">شكراً لزيارتكم</div>
-      <div class="center" style="font-size:9px;margin-top:2px;">Thank you for your visit</div>
+      <div class="center" style="font-size:11px;margin-top:10px;font-weight:bold;">شكراً لزيارتكم</div>
+      <div class="center" style="font-size:10px;margin-top:2px;">Thank you for your visit</div>
     </body>
     </html>
   `;

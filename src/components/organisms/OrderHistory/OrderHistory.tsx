@@ -49,19 +49,33 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
   };
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = 
+      order.orderNumber.toLowerCase().includes(searchLower) ||
+      (order.customerName || '').toLowerCase().includes(searchLower) ||
+      order.items.some(item => item.product.name.toLowerCase().includes(searchLower));
+
     if (filter === 'today') {
-      const today = new Date().toISOString().split('T')[0];
-      const orderDate = order.createdAt.split('T')[0].split(' ')[0];
-      return matchesSearch && orderDate === today;
+      const orderDate = new Date(order.createdAt);
+      // Check if date is valid. If invalid (NaN), show it in Today to be safe in Arabic locale
+      if (isNaN(orderDate.getTime())) return matchesSearch;
+
+      const today = new Date();
+      const isSameDay = 
+        orderDate.getDate() === today.getDate() &&
+        orderDate.getMonth() === today.getMonth() &&
+        orderDate.getFullYear() === today.getFullYear();
+        
+      return matchesSearch && isSameDay;
     }
     return matchesSearch;
   });
 
-  const handleRefund = async (orderId: string) => {
-    if (confirm(t('orders.refundConfirm'))) {
+  const handleRefund = async (orderId: string, productId?: string) => {
+    const message = productId ? t('orders.refundItemConfirm') : t('orders.refundConfirm');
+    if (confirm(message || (productId ? 'Are you sure you want to refund this item?' : 'Are you sure you want to refund this order?'))) {
       try {
-        await orderService.refundOrder(orderId);
+        await orderService.refundOrder(orderId, productId ? [productId] : undefined);
         toast.success(t('orders.refundSuccess'));
         loadOrders();
       } catch (error) {
@@ -80,7 +94,11 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
   };
 
   const handlePrint = async (order: Order) => {
-    await hardwareService.printReceipt(order, 'QuickMart POS', 'Cairo, Egypt');
+    await hardwareService.printReceipt(
+      order, 
+      state.settings.storeName, 
+      state.settings.storeAddress
+    );
   };
 
   const statusConfig = {
@@ -93,9 +111,17 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
   const todayTotal = orders
     .filter((o) => {
       const isCompleted = o.status === 'completed';
-      const orderDate = o.createdAt.split('T')[0].split(' ')[0];
-      const today = new Date().toISOString().split('T')[0];
-      return isCompleted && orderDate === today;
+      try {
+        const orderDate = new Date(o.createdAt);
+        const today = new Date();
+        const isSameDay = 
+          orderDate.getDate() === today.getDate() &&
+          orderDate.getMonth() === today.getMonth() &&
+          orderDate.getFullYear() === today.getFullYear();
+        return isCompleted && isSameDay;
+      } catch {
+        return false;
+      }
     })
     .reduce((sum, o) => sum + o.grandTotal, 0);
 
@@ -181,17 +207,28 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
                   }
                 >
                   <div className="flex items-center gap-4">
-                    <div>
-                      <p className="text-sm font-mono font-bold text-indigo-400">
-                        {order.orderNumber}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-mono font-bold text-indigo-400 truncate">
+                          {order.orderNumber}
+                        </p>
+                        {order.stage ? (
+                          <div 
+                            className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm flex items-center gap-1 shrink-0"
+                            style={{ backgroundColor: order.stage.color }}
+                          >
+                            {order.stage.name}
+                          </div>
+                        ) : (
+                          <Badge variant={statusConfig[order.status].variant} size="sm">
+                            {statusConfig[order.status].label}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
                         {formatDate(order.createdAt)}
                       </p>
                     </div>
-                    <Badge variant={statusConfig[order.status].variant} size="sm">
-                      {statusConfig[order.status].label}
-                    </Badge>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -208,40 +245,125 @@ export function OrderHistory({ onClose }: OrderHistoryProps) {
                 {/* Expanded Details */}
                 {expandedOrder === order.id && (
                   <div className={`px-4 pb-4 border-t pt-3 animate-slideDown ${isRTL ? 'text-right' : 'text-left'} ${isDark ? 'border-slate-700/50' : 'border-slate-100'}`}>
+                    {/* Customer Info */}
+                    {(order.customerName || order.customerPhone) && (
+                      <div className={`mb-4 p-3 rounded-xl ${isDark ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+                        <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                          {t('checkout.customerInfo')}
+                        </p>
+                        <div className="flex flex-wrap gap-4 text-sm">
+                          {order.customerName && (
+                            <div className="flex flex-col">
+                              <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{t('checkout.customerName')}</span>
+                              <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`}>{order.customerName}</span>
+                            </div>
+                          )}
+                          {order.customerPhone && (
+                            <div className="flex flex-col">
+                              <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{t('checkout.customerPhone')}</span>
+                              <span className={`font-medium ${isDark ? 'text-white' : 'text-slate-900'}`} dir="ltr">{order.customerPhone}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Items */}
-                    <div className="space-y-1 mb-3">
+                    <div className="space-y-3 mb-4">
                       {order.items.map((item) => (
                         <div
                           key={item.product.id}
-                          className="flex justify-between text-sm"
+                          className="flex gap-3"
                         >
-                          <span className={`${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                            {item.product.name} × {item.quantity}
-                          </span>
-                          <span className={`${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                            {formatPrice(item.lineTotal)}
-                          </span>
+                          {/* Item Image */}
+                          <div className={`w-12 h-12 rounded-lg overflow-hidden shrink-0 border ${isDark ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-slate-50'}`}>
+                            {item.product.image ? (
+                              <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Receipt className="w-6 h-6 text-slate-600" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <div className="min-w-0">
+                                <p className={`text-sm font-bold truncate ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                                  {item.product.name}
+                                </p>
+                                {item.product.sku && (
+                                  <p className="text-[10px] text-indigo-400 font-mono font-bold mt-0.5">
+                                    {item.product.sku}
+                                  </p>
+                                )}
+                              </div>
+                              <span className={`text-sm font-bold shrink-0 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                                {formatPrice(item.lineTotal)}
+                              </span>
+                            </div>
+                            
+                            <div className="flex justify-between items-end mt-1">
+                              <div className="flex flex-col gap-0.5">
+                                <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                  {formatPrice(item.product.price)} × {item.quantity}
+                                </p>
+                                {item.product.variantTree && (
+                                  <p className="text-[10px] text-emerald-400/80 font-medium leading-relaxed">
+                                    {item.product.variantTree}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Item Refund Action */}
+                          {order.status !== 'refunded' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRefund(order.id, item.product.id);
+                              }}
+                              className={`h-8 gap-1.5 text-[10px] shrink-0 ${isDark ? 'text-red-400 hover:text-red-300 hover:bg-red-400/10' : 'text-red-500 hover:text-red-600 hover:bg-red-50'}`}
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              {t('orders.refund')}
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>
 
                     {/* Payment Info */}
-                    <div className="text-xs text-slate-500 mb-3">
-                      {t('orders.paid')}{' '}
-                      {order.payments
-                        .map(
-                          (p) =>
-                            `${
-                              p.method === 'cash'
-                                ? t('orders.paymentMethods.cash')
-                                : p.method === 'card'
-                                ? t('orders.paymentMethods.card')
-                                : t('orders.paymentMethods.wallet')
-                            } (${formatPrice(p.amount)})`
-                        )
-                        .join(' + ')}
-                      {order.cashReceived &&
-                        ` • ${t('orders.paid')} ${formatPrice(order.cashReceived)} • ${t('orders.change')} ${formatPrice(order.changeGiven || 0)}`}
+                    <div className={`text-xs p-3 rounded-xl mb-4 ${isDark ? 'bg-slate-800/30 text-slate-400' : 'bg-slate-50 text-slate-500'}`}>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                        <span>
+                          {t('orders.paid')}{' '}
+                          {order.payments
+                            .map(
+                              (p) =>
+                                `${
+                                  p.method === 'cash'
+                                    ? t('orders.paymentMethods.cash')
+                                    : p.method === 'card'
+                                    ? t('orders.paymentMethods.card')
+                                    : t('orders.paymentMethods.wallet')
+                                } (${formatPrice(p.amount)})`
+                            )
+                            .join(' + ')}
+                        </span>
+                      </div>
+                      {order.cashReceived && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>
+                            {t('orders.paid')} {formatPrice(order.cashReceived)} • {t('orders.change')} {formatPrice(order.changeGiven || 0)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Actions */}

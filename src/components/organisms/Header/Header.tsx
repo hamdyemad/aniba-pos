@@ -160,7 +160,9 @@ export function Header({ onOpenHistory, onOpenSessionClose, onOpenBalancesHistor
           <div className="hidden md:flex items-center gap-4">
             <Logo size="md" />
             <div className="hidden lg:block border-l border-slate-200 dark:border-slate-700 pl-4 ml-2">
-              <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest opacity-80">{t('header.terminal')}</p>
+              <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest opacity-80">
+                {state.currentSession?.terminalCode || t('header.terminal')}
+              </p>
             </div>
             
             <button 
@@ -332,7 +334,9 @@ export function Header({ onOpenHistory, onOpenSessionClose, onOpenBalancesHistor
                 <User className="w-5 h-5" />
               </div>
               <div className={isRTL ? 'text-right' : 'text-left'}>
-                <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">{t('header.terminal')}</p>
+                <p className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-widest">
+                  {state.currentSession?.terminalCode || t('header.terminal')}
+                </p>
                 <p className="font-bold text-[var(--text-primary)]">{state.currentUser?.name}</p>
               </div>
             </div>

@@ -13,18 +13,33 @@ export function SessionOpenPage() {
   const { isDark } = useTheme();
   const { selectedCountry } = useRegion();
   const [balance, setBalance] = useState('');
+  const [terminalCode, setTerminalCode] = useState('');
   const [isOpening, setIsOpening] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
 
   const handleOpenSession = async () => {
     setIsOpening(true);
+    setErrors({});
     try {
-      await openSession(parseFloat(balance));
+      await openSession(parseFloat(balance), terminalCode);
       toast.success(t('session.openSuccess'));
-    } catch (error) {
-      toast.error(t('session.openError'));
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error(t('session.openError'));
+      }
     } finally {
       setIsOpening(false);
     }
+  };
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   return (
@@ -50,19 +65,60 @@ export function SessionOpenPage() {
           {t('session.instruction')}
         </p>
 
-        {/* Balance Input */}
-        <div className="w-full mb-6 relative" dir="ltr">
+        {/* Terminal Code Input */}
+        <div className="w-full mb-4">
+          <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            {t('session.terminalCode')}
+          </label>
           <input
-            type="number"
-            value={balance}
-            onChange={(e) => setBalance(e.target.value)}
-            className={`w-full h-16 border rounded-2xl text-center text-3xl font-mono font-bold px-16 focus:outline-none focus:ring-2 transition-all ${isDark ? 'bg-slate-950/60 border-slate-700/50 text-white focus:border-emerald-500/40 focus:ring-emerald-500/10 placeholder:text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-400 focus:ring-emerald-500/20 placeholder:text-slate-400 shadow-inner'}`}
-            placeholder="0.00"
-            autoFocus
+            type="text"
+            value={terminalCode}
+            onChange={(e) => setTerminalCode(e.target.value)}
+            onFocus={() => clearError('terminal_code')}
+            className={`w-full h-12 border rounded-xl px-4 text-lg font-medium focus:outline-none focus:ring-2 transition-all ${
+              errors.terminal_code 
+                ? 'bg-red-50/50 border-red-500/50 text-red-900 focus:border-red-500 focus:ring-red-500/10' 
+                : isDark ? 'bg-slate-950/60 border-slate-700/50 text-white focus:border-emerald-500/40 focus:ring-emerald-500/10 placeholder:text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-400 focus:ring-emerald-500/20 placeholder:text-slate-400'
+            }`}
+            placeholder="e.g. T01"
           />
-          <div className={`absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg border ${isDark ? 'bg-slate-800/80 border-slate-700/50' : 'bg-white border-slate-200'}`}>
-            <span className={`text-xs font-bold ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{selectedCountry?.currency.display}</span>
+          {errors.terminal_code && (
+            <p className="mt-1.5 text-xs font-bold text-red-500 flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-red-500" />
+              {errors.terminal_code[0]}
+            </p>
+          )}
+        </div>
+
+        {/* Balance Input */}
+        <div className="w-full mb-6">
+          <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+            {t('session.openingBalance')}
+          </label>
+          <div className="relative" dir="ltr">
+            <input
+              type="number"
+              value={balance}
+              onChange={(e) => setBalance(e.target.value)}
+              onFocus={() => clearError('opening_balance')}
+              className={`w-full h-16 border rounded-2xl text-center text-3xl font-mono font-bold px-16 focus:outline-none focus:ring-2 transition-all ${
+                errors.opening_balance 
+                  ? 'bg-red-50/50 border-red-500/50 text-red-900 focus:border-red-500 focus:ring-red-500/10' 
+                  : isDark ? 'bg-slate-950/60 border-slate-700/50 text-white focus:border-emerald-500/40 focus:ring-emerald-500/10 placeholder:text-slate-700' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-emerald-400 focus:ring-emerald-500/20 placeholder:text-slate-400 shadow-inner'
+              }`}
+              placeholder="0.00"
+              autoFocus
+            />
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg border ${errors.opening_balance ? 'bg-red-100 border-red-200' : isDark ? 'bg-slate-800/80 border-slate-700/50' : 'bg-white border-slate-200'}`}>
+              <span className={`text-xs font-bold ${errors.opening_balance ? 'text-red-500' : isDark ? 'text-slate-500' : 'text-slate-500'}`}>{selectedCountry?.currency.display}</span>
+            </div>
           </div>
+          {errors.opening_balance && (
+            <p className="mt-1.5 text-xs font-bold text-red-500 flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-red-500" />
+              {errors.opening_balance[0]}
+            </p>
+          )}
         </div>
 
         {/* Submit */}

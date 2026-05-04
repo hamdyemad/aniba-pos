@@ -36,6 +36,7 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
   const [completedChange, setCompletedChange] = useState(0);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
 
   const cashAmount = parseFloat(cashReceived) || 0;
   const change = selectedMethod === 'cash' ? Math.max(0, cashAmount - state.grandTotal) : 0;
@@ -49,6 +50,7 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
   ].filter((v, i, a) => a.indexOf(v) === i && v >= state.grandTotal).slice(0, 4);
 
   const handleCheckout = async () => {
+    setErrors({});
     try {
       const payments: PaymentSplit[] = [
         { method: selectedMethod, amount: state.grandTotal },
@@ -78,9 +80,21 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
       if (state.settings.cashDrawerEnabled && selectedMethod === 'cash') {
         await hardwareService.openCashDrawer();
       }
-    } catch {
-      toast.error(t('checkout.invoiceError'));
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error(t('checkout.invoiceError'));
+      }
     }
+  };
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   const handleApplyDiscount = () => {
@@ -273,21 +287,33 @@ export function CheckoutPanel({ onClose }: CheckoutPanelProps) {
               {t('checkout.customerInfo')}
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className={`h-11 border rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--text-primary)]`}
-                placeholder={t('checkout.customerName')}
-              />
-              <input
-                type="tel"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                className={`h-11 border rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--text-primary)]`}
-                placeholder={t('checkout.customerPhone')}
-                dir="ltr"
-              />
+              <div>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  onFocus={() => clearError('customer_name')}
+                  className={`w-full h-11 border rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                    errors.customer_name ? 'bg-red-50 border-red-500 text-red-900' : 'bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--text-primary)]'
+                  }`}
+                  placeholder={t('checkout.customerName')}
+                />
+                {errors.customer_name && <p className="mt-1 text-[10px] font-bold text-red-500">{errors.customer_name[0]}</p>}
+              </div>
+              <div>
+                <input
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onFocus={() => clearError('customer_phone')}
+                  className={`w-full h-11 border rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                    errors.customer_phone ? 'bg-red-50 border-red-500 text-red-900' : 'bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--text-primary)]'
+                  }`}
+                  placeholder={t('checkout.customerPhone')}
+                  dir="ltr"
+                />
+                {errors.customer_phone && <p className="mt-1 text-[10px] font-bold text-red-500">{errors.customer_phone[0]}</p>}
+              </div>
             </div>
           </div>
 

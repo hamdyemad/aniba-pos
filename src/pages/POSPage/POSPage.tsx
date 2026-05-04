@@ -12,7 +12,6 @@ import { Badge } from '@/components/atoms/Badge';
 import { usePOS } from '@/hooks/usePOS';
 import { useBarcodeScanner } from '@/hooks/useHardware';
 
-import { productService } from '@/services/productService';
 import { useRegion } from '@/hooks/useRegion';
 
 
@@ -27,12 +26,12 @@ import {
   Target,
   TrendingUp,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
+
 
 const MONTHLY_TARGET = 50000; // Default monthly target in SAR
 
 export function POSPage() {
-  const { state, addToCart, clearCart, cartItemCount } = usePOS();
+  const { state, clearCart, cartItemCount } = usePOS();
   const { formatPrice } = useRegion();
   const { t, isRTL } = useTranslation();
   const { isDark } = useTheme();
@@ -55,16 +54,17 @@ export function POSPage() {
 
   // Barcode scanner handler
   const handleBarcodeScan = useCallback(
-    async (barcode: string) => {
-      const product = await productService.getByBarcode(barcode);
-      if (product) {
-        addToCart(product);
-        toast.success(`${t('pos.added')} ${product.name}`, { icon: '✅', duration: 1500 });
-      } else {
-        toast.error(`${t('pos.productNotFound')} ${barcode}`, { icon: '❌', duration: 2000 });
+    (barcode: string) => {
+      // Dispatch custom event to let ProductGrid know a barcode was scanned
+      window.dispatchEvent(new CustomEvent('pos-barcode-scanned', { detail: barcode }));
+      
+      // Focus search input
+      const searchInput = document.getElementById('product-search-input');
+      if (searchInput) {
+        searchInput.focus();
       }
     },
-    [addToCart, t]
+    []
   );
 
   useBarcodeScanner(handleBarcodeScan);

@@ -309,6 +309,19 @@ export function ProductGrid() {
     subcategoryId: selectedSubId
   });
 
+  // Listen for barcode scans from POSPage
+  useEffect(() => {
+    const handleBarcodeScanned = (e: Event) => {
+      const barcode = (e as CustomEvent).detail;
+      if (barcode) {
+        search(barcode);
+      }
+    };
+
+    window.addEventListener('pos-barcode-scanned', handleBarcodeScanned);
+    return () => window.removeEventListener('pos-barcode-scanned', handleBarcodeScanned);
+  }, [search]);
+
   // State for hierarchical data
   const [departments, setDepartments] = useState<Department[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

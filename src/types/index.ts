@@ -1,3 +1,10 @@
+export interface Stage {
+  id: number;
+  name: string;
+  color: string;
+  type: string;
+}
+
 // ============ Product Types ============
 export interface Product {
   id: string;
@@ -28,6 +35,8 @@ export interface Product {
   isActive: boolean;
   updatedAt: string;
   selections?: string[];
+  variantTree?: string;
+  stage?: Stage;
 }
 
 
@@ -86,6 +95,9 @@ export interface Order {
   status: OrderStatus;
   cashierId: string;
   cashierName: string;
+  customerName?: string;
+  customerPhone?: string;
+  stage?: Stage;
   createdAt: string;
   syncedAt?: string;
   refundedFrom?: string;
@@ -147,4 +159,5 @@ export interface CashierSession {
   status: 'open' | 'closed';
   totalSales?: number;
   totalRefunds?: number;
+  terminalCode?: string;
 }

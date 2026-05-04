@@ -211,7 +211,7 @@ interface POSContextType {
   cartItemCount: number;
   login: (pin: string) => Promise<boolean>;
   logout: () => void;
-  openSession: (openingBalance: number) => Promise<void>;
+  openSession: (openingBalance: number, terminalCode?: string) => Promise<void>;
   closeSession: (closingBalance: number, totals: { expectedBalance: number; difference: number; totalSales: number; totalRefunds: number }) => Promise<void>;
   checkCurrentSession: () => Promise<void>;
 }
@@ -350,12 +350,16 @@ export function POSProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_SESSION', session: null });
     localStorage.removeItem('pos_user');
     localStorage.removeItem('pos_session');
+    localStorage.removeItem('pos_token');
   }, []);
 
-  const openSession = useCallback(async (openingBalance: number) => {
+  const openSession = useCallback(async (openingBalance: number, terminalCode?: string) => {
     if (!state.currentUser) return;
     try {
-      const response = await api.post('/pos/sessions/open', { openingBalance });
+      const response = await api.post('/pos/sessions/open', { 
+        openingBalance,
+        terminal_code: terminalCode 
+      });
       if (response.data.status) {
         const data = response.data.data;
         const session: CashierSession = {
@@ -364,6 +368,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
           cashierName: state.currentUser.name,
           openingTime: data.opened_at,
           openingBalance: parseFloat(data.opening_balance),
+          terminalCode: data.terminal?.terminal_code || data.terminal_code || terminalCode,
           status: 'open',
         };
         dispatch({ type: 'SET_SESSION', session });
@@ -409,6 +414,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
           cashierName: (data.cashier?.name && data.cashier.name !== 'Unknown') ? data.cashier.name : (state.currentUser?.name || 'كاشير'),
           openingTime: data.opened_at,
           openingBalance: parseFloat(data.opening_balance),
+          terminalCode: data.terminal?.terminal_code || data.terminal_code,
           totalSales: parseFloat(data.total_sales || 0),
           totalRefunds: parseFloat(data.total_refunds || 0),
           status: 'open',
@@ -448,6 +454,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
               cashierName: (data.cashier?.name && data.cashier.name !== 'Unknown') ? data.cashier.name : user.name,
               openingTime: data.opened_at,
               openingBalance: parseFloat(data.opening_balance),
+              terminalCode: data.terminal?.terminal_code || data.terminal_code,
               totalSales: parseFloat(data.total_sales || 0),
               totalRefunds: parseFloat(data.total_refunds || 0),
               status: 'open',

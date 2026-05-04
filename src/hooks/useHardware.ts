@@ -3,43 +3,134 @@ import { productService } from '@/services/productService';
 
 import type { Product } from '@/types';
 
+import scanSound from '@/assets/scan.mp3';
+
 /**
  * Hook for barcode scanner input detection.
  * Barcode scanners act as keyboard input — they type characters rapidly and end with Enter.
  */
 export function useBarcodeScanner(onScan: (barcode: string) => void) {
   const bufferRef = useRef('');
+  const lastKeyTimeRef = useRef(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Pre-load audio
+  useEffect(() => {
+    audioRef.current = new Audio(scanSound);
+    audioRef.current.load();
+  }, []);
+
+  const playBeep = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.warn('Audio play blocked:', e));
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('[ScannerHook] Mounted');
+    
+    // Audio unlock helper
+    const unlockAudio = () => {
+      console.log('[ScannerHook] Unlocking audio...');
+      if (audioRef.current) {
+        audioRef.current.play().then(() => {
+          audioRef.current?.pause();
+          if (audioRef.current) audioRef.current.currentTime = 0;
+          console.log('[ScannerHook] Audio unlocked successfully');
+        }).catch((err) => console.warn('[ScannerHook] Audio unlock failed:', err));
+      }
+      window.removeEventListener('click', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio);
+    return () => {
+      console.log('[ScannerHook] Unmounting');
+      window.removeEventListener('click', unlockAudio);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is typing in an input field
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+      const activeElement = document.activeElement;
+      const isInput = activeElement?.tagName === 'INPUT' || activeElement?.tagName === 'TEXTAREA';
+      
+      // 1. SMART FOCUS: Redirect to search if typing while not in an input
+      if (!isInput && e.key.length === 1 && /[a-zA-Z0-9-]/.test(e.key)) {
+        const searchInput = document.getElementById('product-search-input') as HTMLInputElement;
+        if (searchInput) {
+          console.log('[ScannerHook] Auto-focusing search input');
+          searchInput.focus();
+        }
+      }
 
-      if (e.key === 'Enter' && bufferRef.current.length >= 4) {
-        onScan(bufferRef.current);
-        bufferRef.current = '';
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastKeyTimeRef.current;
+      lastKeyTimeRef.current = currentTime;
+      const isFast = timeDiff < 100; // Stricter for auto-trigger
+      
+      // 2. MANUAL TRIGGER: Enter key
+      if (e.key === 'Enter') {
+        const searchInput = document.getElementById('product-search-input') as HTMLInputElement;
+        const potentialBarcode = bufferRef.current || (searchInput?.value || '');
+
+        if (potentialBarcode.length >= 2) {
+          console.log('[ScannerHook] Enter trigger:', potentialBarcode);
+          if (activeElement?.id !== 'product-search-input') {
+            e.preventDefault();
+          }
+          playBeep();
+          onScan(potentialBarcode);
+          bufferRef.current = '';
+        }
         return;
       }
 
-      if (e.key.length === 1) {
-        bufferRef.current += e.key;
+      // 3. CHARACTER CAPTURE
+      if (e.key === 'Shift' || e.key === 'Control' || e.key === 'Alt' || e.key === 'Meta') return;
 
-        // Reset buffer after 100ms of inactivity (scanner is faster than typing)
+      if (e.key.length === 1) {
+        // If it's fast typing OR starting a new buffer
+        if (isFast || bufferRef.current === '') {
+          bufferRef.current += e.key;
+        } else {
+          // Slow human typing - just keep it simple
+          bufferRef.current = e.key;
+        }
+
+        // 4. AUTO-TRIGGER (For scanners without Enter)
+        // If it's been fast so far, set a timeout to "finalize" the scan if no more keys come
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        
         timeoutRef.current = setTimeout(() => {
+          if (bufferRef.current.length >= 4) { // Only auto-trigger for reasonable length
+            console.log('[ScannerHook] Auto-trigger (timeout):', bufferRef.current);
+            playBeep();
+            onScan(bufferRef.current);
+          }
           bufferRef.current = '';
-        }, 100);
+        }, 200); // Wait 200ms for more characters
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    const handlePaste = (e: ClipboardEvent) => {
+      const pastedText = e.clipboardData?.getData('text');
+      if (pastedText && pastedText.length >= 2) {
+        console.log('[ScannerHook] Global Paste:', pastedText);
+        playBeep();
+        onScan(pastedText);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('paste', handlePaste, true);
+
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('paste', handlePaste, true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [onScan]);
+  }, [onScan, playBeep]);
 }
 
 /**

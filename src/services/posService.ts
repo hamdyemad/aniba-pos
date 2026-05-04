@@ -87,11 +87,28 @@ export const orderService = {
           return response.data.data.map((o: any) => ({
             id: o.id.toString(),
             orderNumber: o.order_number,
+            customerName: o.customer_name,
+            customerPhone: o.customer_phone,
+            stage: o.vendors_stages?.[0] ? {
+              id: o.vendors_stages[0].stage_id,
+              name: o.vendors_stages[0].stage_name,
+              color: o.vendors_stages[0].stage_color,
+              type: o.vendors_stages[0].stage_type
+            } : undefined,
             items: (o.products || []).map((p: any) => ({
               product: {
                 id: p.vendor_product_variant_id?.toString() || p.id.toString(),
                 name: p.product?.name || 'Unknown',
                 price: p.unit_price_after_taxes || p.total / p.quantity || 0,
+                image: p.variant?.images?.[0] || p.product?.image || '',
+                sku: p.variant?.sku || '',
+                variantTree: p.variant?.variant_tree || '',
+                stage: p.stage ? {
+                  id: p.stage.id,
+                  name: p.stage.name,
+                  color: p.stage.color,
+                  type: p.stage.type
+                } : undefined,
               },
               quantity: p.quantity,
               lineTotal: p.total,

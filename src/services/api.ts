@@ -48,7 +48,14 @@ api.interceptors.response.use(
     // Handle specific HTTP error codes
     else if (error.response.status === 401) {
       localStorage.removeItem('pos_token');
+      localStorage.removeItem('pos_user');
+      localStorage.removeItem('pos_session');
       toast.error('Session expired. Please login again.', { id: 'auth-error' });
+      
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     } else if (error.response.status >= 500) {
       toast.error('Server error. Please try again later.', { id: 'server-error' });
     } else if (error.response.data?.message) {

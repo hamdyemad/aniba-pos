@@ -21,6 +21,7 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
   const [actualBalance, setActualBalance] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [totals, setTotals] = useState({ 
     totalSales: 0, 
     totalRefunds: 0, 
@@ -59,6 +60,7 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
 
   const handleClose = async () => {
     setIsClosing(true);
+    setErrors({});
     try {
       await closeSession(actualAmount, {
         expectedBalance: totals.expectedBalance,
@@ -68,11 +70,24 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
       });
       toast.success(t('session.closeSuccess'));
       onClose();
-    } catch (error) {
-      toast.error(t('session.closeError'));
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+        setIsConfirming(false);
+      } else {
+        toast.error(t('session.closeError'));
+      }
     } finally {
       setIsClosing(false);
     }
+  };
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
   };
 
   return (
@@ -114,12 +129,22 @@ export function SessionCloseModal({ onClose }: SessionCloseModalProps) {
                   type="number"
                   value={actualBalance}
                   onChange={(e) => setActualBalance(e.target.value)}
-                  className={`text-center text-4xl font-bold h-24 rounded-[1.5rem] pr-20 shadow-inner ${isDark ? 'bg-slate-950/80 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
+                  onFocus={() => clearError('actual_balance')}
+                  className={`text-center text-4xl font-bold h-24 rounded-[1.5rem] pr-20 shadow-inner ${
+                    errors.actual_balance 
+                      ? 'bg-red-50 border-red-500 text-red-900 focus:border-red-500' 
+                      : isDark ? 'bg-slate-950/80 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                  }`}
                   placeholder="0"
                   autoFocus
                 />
-                <span className={`absolute right-6 top-1/2 -translate-y-1/2 font-bold text-2xl pointer-events-none ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{selectedCountry?.currency.display}</span>
+                <span className={`absolute right-6 top-1/2 -translate-y-1/2 font-bold text-2xl pointer-events-none ${errors.actual_balance ? 'text-red-400' : isDark ? 'text-slate-500' : 'text-slate-400'}`}>{selectedCountry?.currency.display}</span>
               </div>
+              {errors.actual_balance && (
+                <p className="mt-2 text-sm font-bold text-red-500 text-center animate-shake">
+                  {errors.actual_balance[0]}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4 pt-6">
